@@ -1,0 +1,146 @@
+@page "/applications"
+@inject HttpClient Http
+@using PathTracker.Client.Models
+
+<h3>Job Applications</h3>
+
+<button class="btn btn-primary mb-2" @onclick="ShowAddForm">Add New Application</button>
+
+@if (applications == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Company</th>
+                <th>Position</th>
+                <th>Date Applied</th>
+                <th>Status</th>
+                <th>Notes</th>
+                <th>Next Follow-Up</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var app in applications)
+            {
+                <tr>
+                    <td>@app.CompanyName</td>
+                    <td>@app.PositionTitle</td>
+                    <td>@app.DateApplied.ToShortDateString()</td>
+                    <td>@app.Status</td>
+                    <td>@app.Notes</td>
+                    <td>@(app.NextFollowUp.HasValue ? app.NextFollowUp.Value.ToShortDateString() : "N/A")</td>
+                    <td>
+                        <button class="btn btn-sm btn-warning me-1" @onclick="() => ShowEditForm(app)">Edit</button>
+                        <button class="btn btn-sm btn-danger" @onclick="() => DeleteApplication(app.Id)">Delete</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@if (showForm)
+{
+    <EditForm Model="currentApp" OnValidSubmit="HandleValidSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="mb-2">
+            <label>Company Name:</label>
+            <InputText class="form-control" @bind-Value="currentApp.CompanyName" />
+        </div>
+        <div class="mb-2">
+            <label>Position Title:</label>
+            <InputText class="form-control" @bind-Value="currentApp.PositionTitle" />
+        </div>
+        <div class="mb-2">
+            <label>Date Applied:</label>
+            <InputDate class="form-control" @bind-Value="currentApp.DateApplied" />
+        </div>
+        <div class="mb-2">
+            <label>Status:</label>
+            <InputText class="form-control" @bind-Value="currentApp.Status" />
+        </div>
+        <div class="mb-2">
+            <label>Notes:</label>
+            <InputTextArea class="form-control" @bind-Value="currentApp.Notes" />
+        </div>
+        <div class="mb-2">
+            <label>Next Follow-Up:</label>
+            <InputDate class="form-control" @bind-Value="currentApp.NextFollowUp" />
+        </div>
+
+        <button type="submit" class="btn btn-success me-1">Save</button>
+        <button type="button" class="btn btn-secondary" @onclick="CancelForm">Cancel</button>
+    </EditForm>
+}
+
+@code {
+    private List<Application>? applications;
+    private bool showForm = false;
+    private Application currentApp = new Application();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadApplications();
+    }
+
+    private async Task LoadApplications()
+    {
+        applications = await Http.GetFromJsonAsync<List<Application>>("api/applications");
+    }
+
+    private void ShowAddForm()
+    {
+        currentApp = new Application { DateApplied = DateTime.Today };
+        showForm = true;
+    }
+
+    private void ShowEditForm(Application app)
+    {
+        currentApp = new Application
+        {
+            Id = app.Id,
+            CompanyName = app.CompanyName,
+            PositionTitle = app.PositionTitle,
+            DateApplied = app.DateApplied,
+            Status = app.Status,
+            Notes = app.Notes,
+            NextFollowUp = app.NextFollowUp
+        };
+        showForm = true;
+    }
+
+    private void CancelForm()
+    {
+        showForm = false;
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        if (currentApp.Id == 0)
+        {
+            // Add new application
+            var response = await Http.PostAsJsonAsync("api/applications", currentApp);
+        }
+        else
+        {
+            // Update existing application
+            var response = await Http.PutAsJsonAsync($"api/applications/{currentApp.Id}", currentApp);
+        }
+
+        showForm = false;
+        await LoadApplications();
+    }
+
+    private async Task DeleteApplication(int id)
+    {
+        var response = await Http.DeleteAsync($"api/applications/{id}");
+        await LoadApplications();
+    }
+}

@@ -1,4 +1,6 @@
-namespace PathTracker.Api.Models
+using System;
+
+namespace PathTracker.Client.Models
 {
     public class Application
     {
@@ -6,8 +8,8 @@ namespace PathTracker.Api.Models
         public string CompanyName { get; set; } = string.Empty;
         public string PositionTitle { get; set; } = string.Empty;
         public DateTime DateApplied { get; set; }
-        public string Status { get; set; } = "Applied"; // Applied, Interview, Offer, Rejected
-        public string? Notes { get; set; }
-        public DateTime? NextFollowUp { get; set; } // Nullable
+        public string Status { get; set; } = string.Empty;
+        public string Notes { get; set; } = string.Empty;
+        public DateTime? NextFollowUp { get; set; }
     }
 }
