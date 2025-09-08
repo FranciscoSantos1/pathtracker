@@ -37,13 +37,23 @@ namespace PathTracker.Api.Controllers
 
 
         // POST: api/Applications
-        [HttpPost]
+       [HttpPost]
         public async Task<ActionResult<Application>> CreateApplication(Application application)
         {
+            // Convert to UTC
+            application.DateApplied = application.DateApplied.ToUniversalTime();
+
+            if (application.NextFollowUp.HasValue)
+            {
+                application.NextFollowUp = application.NextFollowUp.Value.ToUniversalTime();
+            }
+
             _context.Applications.Add(application);
             await _context.SaveChangesAsync();
-            return CreatedAtAction(nameof(GetApplication), new { id = application.Id }, application);
+
+            return CreatedAtAction(nameof(GetApplications), new { id = application.Id }, application);
         }
+ 
 
         // PUT: api/Applications/1
         [HttpPut("{id}")]

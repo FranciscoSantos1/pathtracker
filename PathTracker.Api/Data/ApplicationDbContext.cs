@@ -9,6 +9,8 @@ namespace PathTracker.Api.Data
         {
         }
 
-        public DbSet<Application> Applications { get; set;}
+        public DbSet<Application> Applications { get; set; }
+
+        
     }
         }

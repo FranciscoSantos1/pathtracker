@@ -97,9 +97,14 @@ else
 
     private void ShowAddForm()
     {
-        currentApp = new Application { DateApplied = DateTime.Today };
+        currentApp = new Application
+        {
+            DateApplied = DateTime.Today,
+            NextFollowUp = null
+        };
         showForm = true;
     }
+
 
     private void ShowEditForm(Application app)
     {
