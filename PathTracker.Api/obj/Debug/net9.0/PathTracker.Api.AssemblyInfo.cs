@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("PathTracker.Api")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+05c6383daeeb5a3cbad825759be4ede8b6d8f6e4")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d8669a31697692a0bcb8ada319b14eb8b27fb51e")]
 [assembly: System.Reflection.AssemblyProductAttribute("PathTracker.Api")]
 [assembly: System.Reflection.AssemblyTitleAttribute("PathTracker.Api")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

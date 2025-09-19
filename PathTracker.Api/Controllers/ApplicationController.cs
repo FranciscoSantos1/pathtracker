@@ -23,6 +23,7 @@ namespace PathTracker.Api.Controllers
             return await _context.Applications.ToListAsync();
         }
 
+
         // GET: api/Applications/1
         [HttpGet("{id}")]
         public async Task<ActionResult<Application>> GetApplication(int id)

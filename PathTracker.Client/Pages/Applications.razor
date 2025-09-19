@@ -5,6 +5,7 @@
 <h3>Job Applications</h3>
 
 <button class="btn btn-primary mb-2" @onclick="ShowAddForm">Add New Application</button>
+<input class="form-control" placeholder="Search by Company" @oninput="OnSearchInput" />
 
 @if (applications == null)
 {
@@ -12,6 +13,7 @@
 }
 else
 {
+    var pagedApps = applications.Skip((currentPage - 1) * pageSize).Take(pageSize).ToList();
     <table class="table table-striped">
         <thead>
             <tr>
@@ -25,7 +27,7 @@ else
             </tr>
         </thead>
         <tbody>
-            @foreach (var app in applications)
+            @foreach (var app in pagedApps)
             {
                 <tr>
                     <td>@app.CompanyName</td>
@@ -42,6 +44,19 @@ else
             }
         </tbody>
     </table>
+    <nav>
+        <ul class="pagination">
+            <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+                <button class="page-link" @onclick="PrevPage">Previous</button>
+            </li>
+            <li class="page-item disabled">
+                <span class="page-link">Page @currentPage of @totalPages</span>
+            </li>
+            <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
+                <button class="page-link" @onclick="NextPage">Next</button>
+            </li>
+        </ul>
+    </nav>
 }
 
 @if (showForm)
@@ -84,6 +99,9 @@ else
     private List<Application>? applications;
     private bool showForm = false;
     private Application currentApp = new Application();
+    private int currentPage = 1;
+    private int pageSize = 15;
+    private int totalPages => applications == null ? 1 : (int)Math.Ceiling(applications.Count / (double)pageSize);
 
     protected override async Task OnInitializedAsync()
     {
@@ -93,6 +111,22 @@ else
     private async Task LoadApplications()
     {
         applications = await Http.GetFromJsonAsync<List<Application>>("api/applications");
+        currentPage = 1;
+    }
+    private void PrevPage()
+    {
+        if (currentPage > 1)
+        {
+            currentPage--;
+        }
+    }
+
+    private void NextPage()
+    {
+        if (currentPage < totalPages)
+        {
+            currentPage++;
+        }
     }
 
     private void ShowAddForm()
@@ -147,5 +181,19 @@ else
     {
         var response = await Http.DeleteAsync($"api/applications/{id}");
         await LoadApplications();
+    }
+
+    private async Task OnSearchInput(ChangeEventArgs e)
+    {
+        var searchTerm = e.Value?.ToString()?.ToLower() ?? string.Empty;
+        if (string.IsNullOrWhiteSpace(searchTerm))
+        {
+            await LoadApplications();
+        }
+        else
+        {
+            applications = applications?.Where(a => a.CompanyName.ToLower().Contains(searchTerm)).ToList() ?? new List<Application>();
+            currentPage = 1;
+        }
     }
 }
